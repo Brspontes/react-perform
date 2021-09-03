@@ -1,9 +1,17 @@
 import { FormEvent, useCallback, useState } from 'react'
 import SearchResults from '../components/SearchResults'
 
+interface Results {
+  totalPrice: number
+  data: any[]
+}
+
 export default function Home() {
   const [search, setSearch] = useState('')
-  const [results, setResults] = useState([])
+  const [results, setResults] = useState<Results>({
+    data: [],
+    totalPrice: 0
+  })
 
   async function handleSearch(event: FormEvent) {
     event.preventDefault()
@@ -14,7 +22,24 @@ export default function Home() {
 
     const data = await response.json()
 
-    setResults(data)
+
+    const products = data.map(response => {
+      return {
+        id: response.id,
+        title: response.title,
+        price: response.price,
+        priceFormatted: new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        }).format(response.price)
+      }
+    })
+
+    const totalPrice = data.reduce((total, product) => {
+      return total + product.price
+    }, 0)
+
+    setResults({totalPrice, data: products})
   }
 
   const onAddWishList = useCallback(async (id: number) => {
@@ -33,7 +58,7 @@ export default function Home() {
         <button type="submit">Buscar</button>
       </form>
 
-      <SearchResults onAddWishList={onAddWishList} results={results} />
+      <SearchResults onAddWishList={onAddWishList} results={results.data} totalPrice={results.totalPrice} />
     </div>
   )
 }

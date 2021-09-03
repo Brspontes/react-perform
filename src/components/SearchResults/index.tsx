@@ -2,10 +2,12 @@ import { useMemo } from 'react'
 import { ProductItem } from '../ProductItem'
 
 interface SearchResultsProps {
+  totalPrice: number
   results: Array<{
     id: number
     price: number
     title: string
+    priceFormatted: string
   }>
   onAddWishList: (id: number) => void
 }
